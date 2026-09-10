@@ -400,8 +400,9 @@ class ResourceProfiler:
             rule,
             "Notes",
             sub_rule,
-            '"gpu util" column is coarse (1s driver window) and over all processes.',
             '"cpu" column is for this process, summed over cores. 100% is one busy core.',
+            '"gpu util" column is coarse (1s driver window) and over all processes.',
+            '"accounted" row should be 100%. If more/less, there\'s over/under counting.',
             "",
         ]
 

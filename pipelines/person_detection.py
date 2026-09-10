@@ -253,7 +253,8 @@ def render_frames(
 
     for frame, frame_detections in zip(frames, detections, strict=True):
         with profiler.phase("render"):
-            yield render_detections(frame, frame_detections)
+            rendered = render_detections(frame, frame_detections)
+        yield rendered
 
 
 def write_video(
