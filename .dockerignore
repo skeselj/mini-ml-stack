@@ -1,0 +1,11 @@
+# The SDK image is built with the repo root as context so it can copy
+# models/. Everything below is irrelevant to the image and would
+# otherwise be shipped to the daemon.
+env/
+data/
+notebooks/
+k8s/
+pipelines/wordcount_output/
+**/__pycache__/
+.ruff_cache/
+.git/

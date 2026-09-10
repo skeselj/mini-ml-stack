@@ -1,0 +1,51 @@
+# Beam Spark job server: translates the portable pipeline into Spark jobs.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beam-job-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beam-job-server
+  template:
+    metadata:
+      labels:
+        app: beam-job-server
+    spec:
+      hostname: beam-job-server
+      subdomain: beam-job-server
+      enableServiceLinks: false
+      containers:
+        - name: job-server
+          image: apache/beam_spark3_job_server:2.76.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - --spark-master-url=spark://spark-master:7077
+          ports:
+            - name: job
+              containerPort: 8099
+            - name: artifact
+              containerPort: 8098
+            - name: expansion
+              containerPort: 8097
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beam-job-server
+spec:
+  clusterIP: None
+  selector:
+    app: beam-job-server
+  ports:
+    - name: job
+      port: 8099
+      targetPort: 8099
+    - name: artifact
+      port: 8098
+      targetPort: 8098
+    - name: expansion
+      port: 8097
+      targetPort: 8097

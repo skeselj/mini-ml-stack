@@ -1,0 +1,47 @@
+# Spark stand-alone master. 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-master
+  template:
+    metadata:
+      labels:
+        app: spark-master
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: spark-master
+          image: apache/spark:3.5.0-scala2.12-java11-ubuntu
+          imagePullPolicy: IfNotPresent
+          command:
+            - /opt/spark/bin/spark-class
+            - org.apache.spark.deploy.master.Master
+          env:
+            - name: SPARK_NO_DAEMONIZE
+              value: "true"
+          ports:
+            - name: cluster
+              containerPort: 7077
+            - name: webui
+              containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-master
+spec:
+  selector:
+    app: spark-master
+  ports:
+    - name: cluster
+      port: 7077
+      targetPort: 7077
+    - name: webui
+      port: 8080
+      targetPort: 8080

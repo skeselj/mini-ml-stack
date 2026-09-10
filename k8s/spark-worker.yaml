@@ -1,0 +1,57 @@
+# Spark worker and Beam hardness that it drives. 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-worker
+  template:
+    metadata:
+      labels:
+        app: spark-worker
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: spark-worker
+          image: apache/spark:3.5.0-scala2.12-java11-ubuntu
+          imagePullPolicy: IfNotPresent
+          command:
+            - /opt/spark/bin/spark-class
+            - org.apache.spark.deploy.worker.Worker
+            - spark://spark-master:7077
+          env:
+            - name: SPARK_WORKER_CORES
+              value: "4"
+            - name: SPARK_WORKER_MEMORY
+              value: "4g"
+            - name: SPARK_NO_DAEMONIZE
+              value: "true"
+          volumeMounts:
+            - name: project
+              mountPath: /mnt/project
+        - name: beam-sdk
+          image: beam-person-detection-sdk:2.76.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - --worker_pool
+          env:
+            - name: PYTHONPATH
+              value: /mnt/project/pipelines
+          ports:
+            - name: sdk
+              containerPort: 50000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          volumeMounts:
+            - name: project
+              mountPath: /mnt/project
+      volumes:
+        - name: project
+          hostPath:
+            path: /mnt/project
+            type: Directory
